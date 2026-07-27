@@ -4,9 +4,10 @@ Last updated: 2026-07-27
 
 ## Current state
 
-The greenfield foundation is complete locally and ready for initial publication.
-It encodes the accepted RTX 3060 12 GB target, Vulkan portability lane, direct
-initial `main` publication, Apache-2.0 code licence, and A → B → C → D gates.
+The greenfield foundation is published on `main` at remote commit
+`752d54d36af25f25d19f8c92166d7611a1028538`. It encodes the accepted RTX 3060
+12 GB target, Vulkan portability lane, Apache-2.0 code licence, and
+A → B → C → D gates.
 
 Completed:
 
