@@ -1,0 +1,64 @@
+{
+  "experiment": "phase-a-flat-router",
+  "kind": "decision",
+  "seed": 17,
+  "hardware": {
+    "accelerator": "NVIDIA RTX 3060",
+    "vram_gib": 12,
+    "compute_backend": "cuda",
+    "precision": "bfloat16-if-supported-else-float16",
+    "base_quantisation": "nf4",
+    "max_peak_vram_gib": 11.2
+  },
+  "model_ladder": {
+    "smoke": "HuggingFaceTB/SmolLM2-135M",
+    "fail_fast": "Qwen/Qwen3.5-0.8B-Base",
+    "primary": "Qwen/Qwen3-4B-Base",
+    "confirmation": "Qwen/Qwen2.5-7B"
+  },
+  "experts": {
+    "count": 4,
+    "domains": ["code", "math", "structured-extraction", "general-instruction"],
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "rank_sweep": [8, 16, 32, 64, 128],
+    "alpha_ratio": 2,
+    "dropout": 0.05,
+    "train_independently": true
+  },
+  "router": {
+    "freeze_base": true,
+    "freeze_experts": true,
+    "granularity_sweep": ["sequence", "token"],
+    "top_k_sweep": [1, 2],
+    "include_base_expert": true,
+    "router_dtype": "float32",
+    "load_balance_coefficient_sweep": [0.0, 0.001, 0.01]
+  },
+  "training": {
+    "sequence_length": 1024,
+    "micro_batch_size": 1,
+    "gradient_accumulation": 16,
+    "gradient_checkpointing": true,
+    "optimizer": "paged_adamw_8bit",
+    "learning_rate_sweep": [0.0001, 0.0002],
+    "warmup_ratio": 0.03,
+    "max_steps_smoke": 100,
+    "max_steps_decision": 2000
+  },
+  "decision": {
+    "seeds": [17, 29, 43],
+    "minimum_specialist_retention": 0.95,
+    "minimum_macro_gain_over_dense_multitask_lora": 0.02,
+    "maximum_general_regression": 0.01,
+    "maximum_p95_latency_over_single_lora": 1.25,
+    "maximum_dead_experts": 0
+  }
+}

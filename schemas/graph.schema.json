@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lora-to-moe.dev/schemas/graph.schema.json",
+  "title": "LoRA-to-MoE graph",
+  "type": "object",
+  "required": ["schema_version", "graph_id", "entry_node", "nodes", "edges", "budgets"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "graph_id": {"type": "string", "minLength": 1},
+    "entry_node": {"type": "string", "minLength": 1},
+    "nodes": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "type": {"enum": ["router", "expert", "base", "head", "bounded_loop"]},
+          "max_iterations": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {"type": "string"},
+          "to": {"type": "string"},
+          "condition": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "budgets": {
+      "type": "object",
+      "required": [
+        "max_active_experts_per_token",
+        "max_router_depth",
+        "max_loop_iterations"
+      ],
+      "properties": {
+        "max_active_experts_per_token": {"type": "integer", "minimum": 1},
+        "max_router_depth": {"type": "integer", "minimum": 1},
+        "max_loop_iterations": {"type": "integer", "minimum": 0}
+      }
+    }
+  },
+  "additionalProperties": false
+}

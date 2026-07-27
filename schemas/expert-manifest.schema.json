@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lora-to-moe.dev/schemas/expert-manifest.schema.json",
+  "title": "LoRA-to-MoE expert manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "expert_id",
+    "revision",
+    "adapter",
+    "compatibility",
+    "capabilities",
+    "provenance",
+    "evaluation",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "expert_id": {"type": "string", "pattern": "^[a-z0-9._-]+/[a-z0-9._/-]+$"},
+    "revision": {"type": "string", "minLength": 1},
+    "adapter": {
+      "type": "object",
+      "required": [
+        "uri",
+        "digest",
+        "architecture",
+        "target_modules",
+        "rank",
+        "alpha",
+        "dtype"
+      ],
+      "properties": {
+        "uri": {"type": "string", "minLength": 1},
+        "digest": {"$ref": "#/$defs/digest"},
+        "architecture": {"enum": ["lora", "dora", "adalora"]},
+        "target_modules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "rank": {"type": "integer", "minimum": 1},
+        "alpha": {"type": "number", "exclusiveMinimum": 0},
+        "dtype": {"enum": ["float32", "float16", "bfloat16"]}
+      },
+      "additionalProperties": true
+    },
+    "compatibility": {
+      "type": "object",
+      "required": ["base_model", "base_model_digest", "tokenizer_digest"],
+      "properties": {
+        "base_model": {"type": "string", "minLength": 1},
+        "base_model_digest": {"$ref": "#/$defs/digest"},
+        "tokenizer_digest": {"$ref": "#/$defs/digest"}
+      },
+      "additionalProperties": true
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["licence", "data_card_uri"],
+      "properties": {
+        "licence": {"type": "string", "minLength": 1},
+        "data_card_uri": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "evaluation": {"type": "object"},
+    "safety": {
+      "type": "object",
+      "required": ["scan_status", "safetensors_only"],
+      "properties": {
+        "scan_status": {"type": "string"},
+        "safetensors_only": {"const": true}
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "additionalProperties": true
+}

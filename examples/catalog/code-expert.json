@@ -1,0 +1,37 @@
+{
+  "$schema": "../../schemas/expert-manifest.schema.json",
+  "schema_version": "0.1.0",
+  "expert_id": "example/code-python",
+  "revision": "0.1.0",
+  "adapter": {
+    "uri": "hf://example/lora-to-moe-code-python@0123456789abcdef",
+    "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "architecture": "lora",
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj"],
+    "rank": 32,
+    "alpha": 64,
+    "dtype": "bfloat16"
+  },
+  "compatibility": {
+    "base_model": "Qwen/Qwen3-4B-Base",
+    "base_model_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "tokenizer_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "transformers": ">=4.51,<5",
+    "peft": ">=0.15,<1"
+  },
+  "capabilities": ["code/python"],
+  "provenance": {
+    "licence": "Apache-2.0",
+    "data_card_uri": "https://example.invalid/data-cards/code-python",
+    "trainer": "example",
+    "source_revision": "0123456789abcdef"
+  },
+  "evaluation": {
+    "status": "example-only",
+    "report_uri": "https://example.invalid/evaluations/code-python"
+  },
+  "safety": {
+    "scan_status": "example-only",
+    "safetensors_only": true
+  }
+}

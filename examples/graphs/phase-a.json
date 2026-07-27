@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schemas/graph.schema.json",
+  "schema_version": "0.1.0",
+  "graph_id": "example/phase-a-flat",
+  "entry_node": "router",
+  "nodes": [
+    {
+      "id": "router",
+      "type": "router",
+      "granularity": "sequence",
+      "top_k": 1,
+      "experts": ["code", "math", "writing", "base"]
+    },
+    {
+      "id": "code",
+      "type": "expert",
+      "manifest": "../catalog/code-expert.json"
+    },
+    {
+      "id": "math",
+      "type": "expert",
+      "manifest": "hf://example/math-expert"
+    },
+    {
+      "id": "writing",
+      "type": "expert",
+      "manifest": "hf://example/writing-expert"
+    },
+    {
+      "id": "base",
+      "type": "base"
+    },
+    {
+      "id": "head",
+      "type": "head"
+    }
+  ],
+  "edges": [
+    {"from": "router", "to": "code", "condition": "selected:code"},
+    {"from": "router", "to": "math", "condition": "selected:math"},
+    {"from": "router", "to": "writing", "condition": "selected:writing"},
+    {"from": "router", "to": "base", "condition": "selected:base"},
+    {"from": "code", "to": "head"},
+    {"from": "math", "to": "head"},
+    {"from": "writing", "to": "head"},
+    {"from": "base", "to": "head"}
+  ],
+  "budgets": {
+    "max_active_experts_per_token": 1,
+    "max_router_depth": 1,
+    "max_loop_iterations": 0
+  }
+}
