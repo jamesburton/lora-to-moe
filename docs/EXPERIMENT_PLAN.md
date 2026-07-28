@@ -134,8 +134,9 @@ Compare against:
 
 ### B3. Route and stop
 
-Train a router at the parent boundary with explicit choices to stop/head,
-descend to each child, or fall back. Compare flat leaves, progressive
+Train a router at the parent boundary with explicit `answer`, `extend`,
+`branch`, and safe-fallback decisions. Score decision-class accuracy separately
+from destination-expert accuracy. Compare flat leaves, progressive
 parent→child paths, and retrieval→shortlist→router. Measure ancestor preservation,
 parent and child routing errors, path-depth calibration, and shared-prefix cache
 reuse.
@@ -154,8 +155,9 @@ Proceed when all are true:
   \(S_k\) and beats or Pareto-dominates the equal-budget wider, continued, and
   flat-sibling controls;
 - ancestors retain ≥98% of unaffected-domain performance;
-- the boundary router sends covered/easy inputs to the earlier exit and remains
-  calibrated on mixed and unknown inputs;
+- the boundary router sends covered/easy inputs to `answer`, selects `extend`
+  only for demonstrated residual need, chooses `branch` for specialism changes,
+  and remains calibrated on mixed and unknown inputs;
 - marginal capability per active parameter and p95 millisecond improves ≥10%;
 - two growth events demonstrate a repeatable capacity-unit and lineage rule;
 - every child is reproducible only from its pinned ancestor chain.
