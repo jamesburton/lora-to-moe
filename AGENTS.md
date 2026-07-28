@@ -49,16 +49,21 @@ Toy runs may use one seed but must be labelled `smoke`, never `evidence`.
 ## Architecture invariants
 
 - The base model is content-addressed and immutable during router-only training.
-- Experts are independently loadable artifacts with explicit base-model,
+- Root experts are independently loadable artifacts with explicit base-model,
   architecture, target-module, rank, dtype, tokenizer, licence, data-provenance,
   evaluation, and safety compatibility.
+- A residual child pins its ordered ancestor adapter digests. It is loadable as
+  an artifact but executable only over that exact frozen path; never silently
+  attach it to the dense base or another parent.
 - Router inputs and routing granularity are declared. Hidden oracle labels are
   forbidden outside the oracle baseline.
 - Every graph has a base/null path and an output path.
 - Cycles are rejected unless represented as bounded loop nodes with maximum
   iterations, compute budget, exit policy, and fallback.
-- Expert weights remain frozen during the primary router comparison. Joint
-  tuning is a separate ablation because it changes the question.
+- Expert weights remain frozen during the primary router comparison. During
+  X→X+1 growth, freeze the base, all ancestors, and existing routers; train only
+  the new residual and then its boundary router. Joint tuning is a separate
+  ablation because it changes the question.
 - Training and inference backends must implement the same observable routing
   semantics or declare the deviation.
 
