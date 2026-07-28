@@ -92,6 +92,24 @@
 - Reopen: revise the unit definition if repeated X→X+1 additions are dominated
   by widening, flat experts, or continued training.
 
+## D-010 — Answer, extend, or branch routing protocol
+
+- Status: accepted clarification from repository owner
+- Date: 2026-07-28
+- Context: progressive growth needs to distinguish a request that is already
+  answerable, one needing more depth on the current knowledge path, and one
+  needing a different specialism.
+- Decision: every expert boundary exposes three semantic choices: `answer`,
+  `extend`, and `branch`. Router evaluation reports decision-class and
+  destination errors separately. Experts remain independently trainable and
+  shareable; consumers fetch compatible artifacts and retrain or calibrate only
+  the router for their catalog, workload, and compute budget.
+- Consequence: manifests must distinguish lineage extensions from branches,
+  while router releases pin the exact admitted catalog. Fast add/revoke tests
+  become a core ecosystem benchmark.
+- Reopen: revise the factorisation if a fused flat router is consistently better
+  calibrated and cheaper while preserving equivalent observable semantics.
+
 ## Rejection review queue
 
 No high-uniqueness path has been rejected yet. Future rejected entries must name
