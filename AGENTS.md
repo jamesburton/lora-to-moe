@@ -58,6 +58,9 @@ Toy runs may use one seed but must be labelled `smoke`, never `evidence`.
 - Router inputs and routing granularity are declared. Hidden oracle labels are
   forbidden outside the oracle baseline.
 - Every graph has a base/null path and an output path.
+- Every expert boundary exposes `answer`, `extend`, and `branch` semantics.
+  Evaluate the decision class separately from the selected destination, even if
+  an implementation fuses both into one router head.
 - Cycles are rejected unless represented as bounded loop nodes with maximum
   iterations, compute budget, exit policy, and fallback.
 - Expert weights remain frozen during the primary router comparison. During
