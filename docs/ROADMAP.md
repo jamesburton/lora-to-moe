@@ -31,11 +31,14 @@ Exit: Gate A in `EXPERIMENT_PLAN.md`, followed by human review.
 - [ ] Freeze Sₖ and train one matched child residual for Sₖ₊₁.
 - [ ] Compare residual stacking with wider, continued, replacement, and flat
   sibling training.
-- [ ] Add calibrated stop/head versus descend routing at the parent boundary.
+- [ ] Implement first-class `answer`/`extend`/`branch` routing at every boundary.
+- [ ] Calibrate decision-class confidence separately from destination selection.
 - [ ] Repeat one growth event to test transfer of the unit and growth rule.
 - [ ] Add ancestor-chain digests to manifest validation and runtime admission.
 - [ ] Graph planner, marginal-cost estimator, and topology visualisation.
-- [ ] First independently contributed root/child compatibility trial.
+- [ ] First independently contributed root/extension/branch compatibility trial.
+- [ ] Measure router-only catalog integration time for fetch, add, revoke, and
+  rollback workflows.
 
 Exit: Gate B. If it fails, retain useful flat experts and do not force depth.
 
