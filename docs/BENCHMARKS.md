@@ -10,7 +10,8 @@
 | Specialisation | confusion matrix, mutual information, per-expert lift | Shows whether experts are meaningfully distinct. |
 | Balance | utilisation, dead experts, max/mean load, dropped tokens | Detects collapse and systems hot spots. |
 | Robustness | mixed prompts, unknowns, paraphrases, injection, OOD | Tests the base route and router brittleness. |
-| Efficiency | active/stored/trainable parameters, FLOPs, VRAM | Prevents misleading “small” claims. |
+| Growth | marginal gain from Sₖ→Sₖ₊₁, ancestor retention, stop-depth calibration | Tests whether capacity follows knowledge demand. |
+| Efficiency | active/stored/trainable parameters, path depth, FLOPs, VRAM | Prevents misleading “small” claims. |
 | Serving | TTFT, inter-token latency, p50/p95, tokens/s, throughput | Captures real runtime cost. |
 | Training | GPU-hours, wall time, energy, tokens, failures | Enables ROI and retraining-cost comparison. |
 | Governance | licence compatibility, provenance completeness, scans | Determines whether an artifact is deployable. |
@@ -40,6 +41,10 @@ Report multiple matched views:
 4. Same active parameters/FLOPs per token.
 5. Same p95 latency or energy.
 6. Same wall-clock training budget.
+7. Same added whole-adapter capacity: residual child versus wider LoRA, continued
+   training, replacement, and flat sibling.
+8. Same routed path-depth distribution or the latency/energy needed to obtain
+   the same quality.
 
 No single view captures all trade-offs. A top-2 system cannot claim efficiency
 against top-1 without active-cost and latency measurements.
