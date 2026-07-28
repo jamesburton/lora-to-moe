@@ -4,8 +4,9 @@ LoRA → MoE is an experiment-driven route from a small dense language model to
 a model that grows expert-capacity only where knowledge demands it. Contributors
 first train broad LoRA experts independently and route among them. A selected
 expert path can then grow from X to X+1 capacity units by training one further
-residual LoRA over the frozen stack. Routers at each boundary may exit to the
-head, choose a sibling, or descend to another specialist. Later phases test
+residual LoRA over the frozen stack. At every boundary the router makes one of three explicit decisions: **answer**
+through the current compatible head, **extend** the current lineage with its next
+residual capacity unit, or **branch** into a sibling or child specialism. Later phases test
 bounded latent-space recursion and generated LoRA weights, but only after this
 progressive growth mechanism earns the right to continue.
 
@@ -110,6 +111,8 @@ Public on-demand knowledge belongs in `docs/`. Private working notes belong in
   evidence decides continuation.
 - Rejections are reversible. Record the evidence, threshold, uncertainty,
   owner, and a condition that would reopen the decision.
+- Every routing boundary implements `answer`, `extend`, or `branch`; these are
+  logged separately so depth demand is distinguishable from specialism choice.
 - “Matched expert size” means a declared capacity unit across the adapter stack,
   not LoRA rank equal to hidden width; report stored parameters, active FLOPs,
   latency, and measured marginal capability separately.
