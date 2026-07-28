@@ -24,6 +24,8 @@ An expert release contains:
 Hard requirements for direct composition:
 
 - exact base checkpoint and tokenizer digests;
+- for a residual child, the ordered content digests of every frozen ancestor
+  adapter and router contract used during training;
 - architecture and target module names/shapes;
 - adapter method and runtime operator support;
 - embedding/vocabulary compatibility;
@@ -53,8 +55,11 @@ Discovery produces candidates, not admission. A local policy evaluates:
 
 ## Router lifecycle
 
-Router manifests pin the ordered expert set and digests. Adding, upgrading, or
-revoking an expert creates a new router release. Warm-start is allowed, but old
+Router manifests pin the ordered expert set and digests. Residual children also
+pin an ordered ancestor chain: their effective base is Sₖ, not M₀ alone. Adding,
+upgrading, or revoking an expert creates a new router release, and revoking an
+ancestor transitively disables descendants unless separately retrained and
+admitted. Warm-start is allowed, but old
 domain regression and calibration are mandatory. A missing or rejected expert
 must route to an explicit fallback rather than shift array indices.
 
