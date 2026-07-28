@@ -45,16 +45,15 @@
 - Reopen: strong external evidence makes a later phase cheaper to test, but it
   may run only as an isolated spike without bypassing production gates.
 
-## D-006 — High rank is an experiment, not the default
+## D-006 — Rank-equals-width interpretation
 
-- Status: accepted
-- Date: 2026-07-27
-- Context: “LoRA of matching layer size” could mean rank equal to layer width.
-- Decision: sweep practical ranks first. Parameter equality for a projection is
-  \(d_{in}d_{out}/(d_{in}+d_{out})\); full-width rank can exceed dense parameter
-  count. Use effective-rank and gain-per-parameter evidence.
-- Reopen: high-rank probe yields a strategically important ≥3-point gain that a
-  practical rank cannot match.
+- Status: superseded
+- Date: 2026-07-28
+- Context: the initial foundation interpreted “LoRA of matching layer size” as a
+  possible rank equal to projection width.
+- Decision: this was not the intended hypothesis. Preserve high-rank/effective-
+  rank analysis only as an equal-budget control.
+- Superseded by: D-009.
 
 ## D-007 — No raw cycles in expert graphs
 
@@ -73,6 +72,25 @@
   permanent dependency. Fail-fast and base-selection benchmarks precede spend.
 - Reopen: newer candidate wins the declared capability/licence/fit/portability
   scorecard.
+
+## D-009 — Progressive matched expert-capacity units
+
+- Status: accepted clarification from repository owner
+- Date: 2026-07-28
+- Context: start from a smaller, less capable dense model. A routed knowledge
+  path holding X expert-capacity units receives a new residual LoRA only when
+  measured residual knowledge justifies growth to X+1.
+- Decision: Phase A establishes broad independent roots and routing. Phase B
+  freezes the chosen base/ancestor path, trains one matched residual unit,
+  exposes stop/head and child routes, and tests repeated growth.
+- Meaning of matched: a declared whole-adapter budget across target modules,
+  reported by stored/trainable parameters, active FLOPs, latency, and marginal
+  capability. It does not prescribe rank equal to hidden width.
+- Consequence: children pin their ordered ancestor digests and are not directly
+  composable with another path. Flat, wider, continued-training, and replacement
+  baselines are mandatory.
+- Reopen: revise the unit definition if repeated X→X+1 additions are dominated
+  by widening, flat experts, or continued training.
 
 ## Rejection review queue
 
