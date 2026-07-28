@@ -5,8 +5,9 @@
 Today, adapting one base model to many domains usually means training one
 multi-task adapter, switching whole adapters per request, statically merging
 adapters, or serving multiple models. LoRA → MoE proposes a fifth option:
-independently train narrow, replaceable expert deltas and learn a small routing
-fabric that composes only the required deltas at the required locations.
+begin with a smaller, less capable dense model; train broad expert LoRAs and a
+root router; then grow only the knowledge paths that need more capacity by
+training another residual LoRA over the frozen selected stack.
 
 The long-term unit of collaboration is not a monolithic checkpoint. It is a
 signed expert artifact plus evidence, provenance, compatibility metadata, and a
@@ -19,7 +20,7 @@ loops compose.
 |---|---|---|
 | H1 | Independent LoRAs retain ≥95% of their isolated specialist gain after frozen composition. | Four disjoint synthetic/real tasks on a ≤1.5B base. |
 | H2 | A learned router beats retrieval and static merging at matched active parameters without >1 point general regression. | Phase A on three seeds. |
-| H3 | Hierarchical routing improves hard-subdomain quality more than its latency and complexity cost. | Split only the best broad expert into 2–3 children. |
+| H3 | A path can grow from X to X+1 matched expert-capacity units and outperform equal-budget widening, continued training, and a flat sibling. | Add one residual child to the best broad expert, then repeat once. |
 | H4 | A base/null route reduces negative transfer and unnecessary compute. | Remove it and compare calibration, general quality, and activation. |
 | H5 | Bounded latent loops provide a quality/compute Pareto improvement over fixed depth or extra output tokens. | One loop location, 0–3 iterations, forced-depth and post-hoc exit baselines. |
 | H6 | Generated LoRA deltas cut time-to-expert materially while retaining ≥90% of a trained expert’s gain. | Hypernetwork before diffusion; held-out tasks and ranks. |
@@ -34,7 +35,10 @@ is the combined systems hypothesis:
 - experts trained independently by different parties;
 - a compatibility-checked, content-addressed registry and declarative graph;
 - routers retrained cheaply when catalog membership changes;
-- broad expert → specialist sub-router growth driven by measured residual error;
+- broad expert → specialist residual-stack growth driven by measured residual
+  error, with calibrated stop/head routes at every boundary;
+- content-addressed ancestry so independently shared children reproduce the
+  exact frozen expert stack they were trained upon;
 - explicit base/head/exit choices;
 - bounded latent recursion as a later graph primitive;
 - generated expert candidates subjected to the same evidence and governance;
@@ -48,7 +52,9 @@ or absence of unpublished work.
 
 - Training a foundation model from scratch.
 - Unbounded recurrent graphs.
-- Assuming more experts or larger ranks are inherently better.
+- Assuming more experts, deeper paths, or larger ranks are inherently better.
+- Calling rank equal to hidden width “matched expert size”; matching applies to a
+  declared whole-adapter capacity unit and must survive equal-budget controls.
 - Treating Vulkan as the initial training API. It is primarily an inference and
   portability target; CUDA, XPU, and ROCm are separate training backends.
 - Hosting arbitrary pickle files or executable expert install hooks.
