@@ -19,28 +19,55 @@ y = Wx + \sum_{e \in \operatorname{TopK}(g(h))} g_e(h)\Delta W_e x
 
 The primary Phase A experiment freezes \(W, A_e, B_e\) and trains only \(g\).
 Joint expert/router training is an ablation because it no longer tests whether
-independently useful experts can be assembled cheaply.
+independently useful experts can be assembled cheaply. Phase B changes the
+topology, not this discipline: it trains one new residual adapter while freezing
+the base, its ancestor adapters, and the existing routers.
 
-## Rank is a budget, not layer-size mimicry
+## Progressive expert-capacity growth
 
-A dense projection has \(d_{in}d_{out}\) parameters. A rank-\(r\) LoRA has
-\(r(d_{in}+d_{out})\). Parameter equality occurs at:
+Let \(M_0\) be the small dense base and \(\Delta_i\) an expert residual
+trained while the preceding path is frozen. A path of depth \(k\) is:
 
 \[
-r_{\text{equal}} = \frac{d_{in}d_{out}}{d_{in}+d_{out}}
+S_k(x) = M_0(x) + \Delta_1(x) + \Delta_2(x) + \cdots + \Delta_k(x)
 \]
 
-For a square width \(d\), this is \(d/2\), while rank \(d\) uses twice the dense
-projection’s parameters. High rank may still be a useful capacity experiment,
-but it forfeits LoRA’s main efficiency property. Rank selection therefore uses:
+This is conceptual notation: implementations apply each LoRA delta at its
+declared target modules throughout the transformer. It does not imply appending
+a transformer layer or merging weights during training.
 
-1. ranks 8, 16, 32, 64, and 128;
-2. singular-value/effective-rank analysis of learned deltas;
-3. specialist gain per stored and active parameter;
-4. widening only while marginal gains clear a preregistered threshold.
+A router first selects a broad expert. At the next boundary it may:
 
-Rank need not match across experts if the runtime executes each factorisation
-separately. Static batching and some fused kernels may require rank buckets.
+1. exit through the normal compatible output path;
+2. select a child residual and compute \(S_{k+1}\);
+3. select another declared branch;
+4. later, enter a separately bounded adaptive-computation primitive.
+
+Growth is evidence-triggered. Cluster the residual failures of \(S_k\); add
+\(\Delta_{k+1}\) only when a stable, valuable knowledge region cannot be served
+efficiently by the current path. Ancestors remain reusable and immutable.
+
+## What “matched expert size” means
+
+Here, \(X\) counts accumulated expert-capacity units. “X→X+1” means adding one
+new LoRA unit matched to the project’s declared expert budget across all target
+modules. It does **not** mean setting LoRA rank equal to hidden width.
+
+A rank-\(r\) LoRA on one projection has \(r(d_{in}+d_{out})\) parameters, so
+rank remains an implementation variable. Each capacity-unit definition records:
+
+- stored and trainable adapter parameters;
+- active parameters and FLOPs along the routed path;
+- target-module coverage and rank allocation by layer;
+- peak VRAM, cache residency, and p95 latency;
+- marginal capability gained over \(S_k\).
+
+The initial unit may use a practical rank sweep. The matched-size hypothesis is
+then tested with equal-budget alternatives: one additional residual unit, one
+wider adapter, a flat sibling, continued training of the current adapter, and a
+dense multi-task adapter. “Expert-sized” is earned empirically if repeated units
+produce roughly comparable useful capacity; it is not asserted from parameter
+count alone.
 
 ## Graph primitives
 
@@ -75,20 +102,27 @@ future tokens. Router logits stay float32 initially. Measurements include
 entropy, calibration, expert confusion, utilisation, dropped tokens, switching
 rate, and base-route frequency—not just task loss.
 
-## Hierarchy
+## Progressive hierarchy
 
 Subdivide a broad expert only when its residual errors cluster into stable,
-high-volume subdomains and a child can be trained without erasing the parent’s
-coverage. Compare:
+high-volume subdomains. The child is trained over the exact frozen parent path,
+so its manifest pins the ordered ancestor digests. A child cannot be attached
+directly to the base or a different parent without retraining and evaluation.
 
-- flat router over all leaf experts;
-- parent router followed by a specialist router;
-- retrieved shortlist followed by a learned router;
-- shared parent delta plus one child delta;
-- child-only delta from the base.
+Compare:
 
-The hierarchy must win on capability per active byte/millisecond, not merely
-parameter count. A flat oracle quantifies the hierarchy’s routing tax.
+- flat routing over independently trained leaf experts;
+- parent path plus a child residual, \(S_k + \Delta_{k+1}\);
+- a single wider LoRA with the same stored/active budget;
+- continued tuning or replacement of the parent;
+- retrieval shortlist followed by a learned router;
+- child-only delta trained directly from the base.
+
+Each boundary exposes a calibrated head/stop route. This makes depth conditional:
+easy or already-covered inputs stop at \(S_k\), while only the relevant
+knowledge region pays for \(S_{k+1}\). The hierarchy must win on marginal
+capability per active byte, FLOP, and millisecond, not merely parameter count. A
+flat oracle quantifies the routing tax.
 
 ## Execution planes
 
