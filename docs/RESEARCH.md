@@ -41,8 +41,11 @@ local reproduction.
   ecosystem contracts, hardware constraints, and stronger matched baselines.
 
 **Implication:** Phase A is validation and infrastructure, not a claim that
-frozen LoRA routing itself is new. The null/base route, independent marketplace
-compatibility, hierarchy growth rule, bounded recursion, and generated-expert
+frozen LoRA routing itself is new. The central follow-on question is progressive
+residual growth: freeze a routed path Sₖ, train one child LoRA to form Sₖ₊₁, and
+let the boundary router stop or descend. This must be distinguished from merely
+adding more parallel LoRAs or increasing rank. The null/base route, pinned
+ancestor chains, measured growth rule, bounded recursion, and generated-expert
 pipeline are the research combination to evaluate.
 
 ## Router stability and specialisation
@@ -138,10 +141,12 @@ model/adapter conversion details.
 
 1. Compatibility-safe composition across independently governed publishers.
 2. Router retraining cost and regressions as experts are added/removed.
-3. Growth from a general expert into children based on residual-error clusters.
-4. Base/head/child choices inside one constrained graph contract.
-5. Portable golden traces for routed adapter semantics.
-6. Combining independently trained experts with bounded latent computation.
-7. Generated experts that carry uncertainty and pass the same admission gates.
-8. Enterprise revocation: removing one compromised expert without retraining or
-   redeploying the dense base.
+3. Repeatable X→X+1 residual-stack growth based on residual-error clusters,
+   tested against equal-budget widening, continued training, and flat siblings.
+4. Content-addressed ancestor chains for independently shared child experts.
+5. Base/head/child choices inside one constrained graph contract.
+6. Portable golden traces for routed adapter semantics.
+7. Combining independently trained experts with bounded latent computation.
+8. Generated experts that carry uncertainty and pass the same admission gates.
+9. Enterprise revocation: removing one compromised expert or ancestor without
+   silently leaving dependent descendants active.
