@@ -55,6 +55,19 @@ Discovery produces candidates, not admission. A local policy evaluates:
 
 ## Router lifecycle
 
+Expert production and router integration are deliberately decoupled. A
+publisher can train and release a root, extension, or branch independently. A
+consumer fetches only artifacts compatible with its base and ancestor graph,
+then trains or calibrates a small local router over its own workload. Adding or
+removing catalog members should therefore cost a router update, not expert or
+base retraining.
+
+Every boundary exposes the portable decisions `answer`, `extend`, and `branch`.
+The router first predicts the decision class, then the compatible destination
+within that class; implementations may fuse these logits, but evaluation must
+report both errors separately. This keeps catalog growth from confusing “needs
+more depth” with “needs another domain.”
+
 Router manifests pin the ordered expert set and digests. Residual children also
 pin an ordered ancestor chain: their effective base is Sₖ, not M₀ alone. Adding,
 upgrading, or revoking an expert creates a new router release, and revoking an
@@ -65,7 +78,8 @@ must route to an explicit fallback rather than shift array indices.
 
 To keep retraining cheap, maintain:
 
-- a public routing dataset of observable prompts and expected capability tags;
+- a public routing dataset of observable prompts with `answer`/`extend`/`branch`
+  labels and compatible destination tags;
 - private tenant routing examples stored separately;
 - distilled expert competence embeddings/scorecards;
 - hard mixed-domain and negative/base cases;
