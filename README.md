@@ -1,11 +1,13 @@
 # LoRA → MoE
 
-LoRA → MoE is an experiment-driven route from a capable small dense language
-model to a collaboratively assembled sparse model. Contributors train focused
-LoRA experts independently; a lightweight router then selects or composes those
-frozen experts. Successful broad experts can become parents of specialist
-sub-routers. Later phases test bounded latent-space recursion and generated LoRA
-weights, but only after simpler designs earn the right to continue.
+LoRA → MoE is an experiment-driven route from a small dense language model to
+a model that grows expert-capacity only where knowledge demands it. Contributors
+first train broad LoRA experts independently and route among them. A selected
+expert path can then grow from X to X+1 capacity units by training one further
+residual LoRA over the frozen stack. Routers at each boundary may exit to the
+head, choose a sibling, or descend to another specialist. Later phases test
+bounded latent-space recursion and generated LoRA weights, but only after this
+progressive growth mechanism earns the right to continue.
 
 The project is deliberately not “attach many adapters and call it an MoE.” Its
 central questions are measurable:
@@ -14,10 +16,13 @@ central questions are measurable:
    routed together?
 2. Can routing beat a dense multi-task LoRA, static merging, retrieval, and an
    oracle-labelled upper bound at matched active parameters and latency?
-3. Does a hierarchy add useful capability per active byte and millisecond?
-4. Can a safe exit or bounded loop allocate extra latent computation without
+3. When a routed path reaches its capacity, does adding a matched residual
+   expert unit outperform widening, retraining, or adding a flat sibling?
+4. Does a progressive hierarchy add useful capability per active byte and
+   millisecond while preserving its ancestors?
+5. Can a safe exit or bounded loop allocate extra latent computation without
    destabilising the pretrained representation?
-5. Can a hypernetwork or diffusion model amortise expert creation while passing
+6. Can a hypernetwork or diffusion model amortise expert creation while passing
    the same quality, licence, provenance, and safety gates as trained experts?
 
 ## Initial target
@@ -47,10 +52,13 @@ flowchart TD
     C -->|"stability + compute gate"| D["D · Generated LoRA deltas"]
 ```
 
-Phase A trains 3–5 task or sector LoRAs independently, freezes them, and trains
-only the router. It compares token-, sequence-, and retrieval-based routing,
-top-1 and top-2 activation, and null/base-model routing. Every later phase has
-an explicit stop rule in [the experiment plan](docs/EXPERIMENT_PLAN.md).
+Phase A trains 3–5 broad task or sector LoRAs independently, freezes them, and
+trains only the root router. It compares token-, sequence-, and retrieval-based
+routing, top-1 and top-2 activation, and null/base-model routing. Phase B then
+selects a path from measured residual errors and trains its next LoRA on top of
+the frozen ancestor stack, comparing X→X+1 growth against flat, wider, and
+retrained baselines. Every later phase has an explicit stop rule in
+[the experiment plan](docs/EXPERIMENT_PLAN.md).
 
 ## Run the dependency-free reference
 
@@ -102,6 +110,9 @@ Public on-demand knowledge belongs in `docs/`. Private working notes belong in
   evidence decides continuation.
 - Rejections are reversible. Record the evidence, threshold, uncertainty,
   owner, and a condition that would reopen the decision.
+- “Matched expert size” means a declared capacity unit across the adapter stack,
+  not LoRA rank equal to hidden width; report stored parameters, active FLOPs,
+  latency, and measured marginal capability separately.
 - Compare at matched active parameters, training budget, tokens, and latency.
 - Separate expert quality, router quality, composition quality, and systems
   efficiency so one cannot hide another.
