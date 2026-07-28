@@ -1,17 +1,21 @@
 # Handoff
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 ## Current state
 
-The greenfield foundation is published on `main` at remote commit
-`752d54d36af25f25d19f8c92166d7611a1028538`. It encodes the accepted RTX 3060
-12 GB target, Vulkan portability lane, Apache-2.0 code licence, and
-A → B → C → D gates.
+The greenfield foundation is published on `main`. The 2026-07-28 architecture
+correction now makes progressive matched expert-capacity growth the central
+hypothesis: a frozen path Sₖ receives one residual LoRA only when knowledge gaps
+justify growth to Sₖ₊₁. “Matched” applies to a declared whole-adapter capacity
+unit, not rank equal to hidden width.
 
 Completed:
 
 - research synthesis and explicit novelty boundary;
+- corrected README, vision, architecture, experiments, roadmap, benchmarks,
+  ecosystem, decisions, and agent invariants for X→X+1 residual growth;
+- superseded the incorrect rank-equals-width interpretation in D-006;
 - vision, architecture, experiment protocol, benchmarks, hardware, ecosystem,
   enterprise, roadmap, and reversible decision ledger;
 - strict expert and graph manifests plus JSON Schemas;
@@ -46,7 +50,9 @@ Still assumptions requiring local results:
 
 - four useful experts and router training fit the exact 12 GB profile;
 - frozen composition beats dense multi-task LoRA at matched cost;
-- hierarchy adds ROI beyond a flat/retrieval design;
+- progressive residual stacking adds ROI beyond wider, continued-training,
+  replacement, and flat-sibling designs;
+- one calibrated capacity-unit definition transfers across two growth events;
 - dynamic token routing can be served efficiently;
 - Vulkan runtimes can implement more than sequence-level adapter selection;
 - generated LLM experts generalise beyond their adapter corpus.
@@ -64,10 +70,10 @@ Still assumptions requiring local results:
 
 1. Implement environment fingerprinting, run records, CUDA memory probe, and
    base-model selection harness; execute on the RTX 3060.
-2. Implement one PEFT expert training/export pipeline and reproduce one expert
-   across two seeds before expanding to four domains.
-3. Implement dense multi-task, retrieval, oracle, and learned sequence-router
-   baselines before token-level routing.
+2. Implement one PEFT expert training/export pipeline and reproduce one broad
+   root expert across two seeds before expanding to four domains.
+3. Add capacity-unit accounting plus a two-step S₀→S₁→S₂ smoke experiment,
+   including wider, continued-training, and flat-sibling controls.
 
 ## Human review
 
