@@ -24,15 +24,20 @@ Exit: harness controls pass and one base fits the 12 GB envelope.
 
 Exit: Gate A in `EXPERIMENT_PLAN.md`, followed by human review.
 
-## Milestone B — Hierarchy
+## Milestone B — Progressive expert stacks
 
-- [ ] Residual-error clustering and growth proposal.
-- [ ] Parent+child versus independent-child training.
-- [ ] Flat/hierarchical/retrieval-shortlist comparisons.
-- [ ] Graph planner, cost estimator, and topology visualisation.
-- [ ] First independently contributed expert compatibility trial.
+- [ ] Calibrate the whole-adapter expert-capacity unit and equal-budget controls.
+- [ ] Select one broad path by stable residual-error clustering.
+- [ ] Freeze Sₖ and train one matched child residual for Sₖ₊₁.
+- [ ] Compare residual stacking with wider, continued, replacement, and flat
+  sibling training.
+- [ ] Add calibrated stop/head versus descend routing at the parent boundary.
+- [ ] Repeat one growth event to test transfer of the unit and growth rule.
+- [ ] Add ancestor-chain digests to manifest validation and runtime admission.
+- [ ] Graph planner, marginal-cost estimator, and topology visualisation.
+- [ ] First independently contributed root/child compatibility trial.
 
-Exit: Gate B. If it fails, retain flat catalog/router and do not force depth.
+Exit: Gate B. If it fails, retain useful flat experts and do not force depth.
 
 ## Milestone C — Adaptive computation
 
