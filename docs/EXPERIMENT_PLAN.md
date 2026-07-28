@@ -30,16 +30,22 @@ profile below 11.2 GiB and exhibits non-trivial but improvable performance in at
 least three target domains. Otherwise shrink sequence length/model or revisit
 the hardware plan.
 
-### 0.2 Rank and target-module screen
+### 0.2 Capacity-unit and target-module calibration
 
-For one task, sweep rank 8–128 and attention-only versus attention+MLP targets.
-Include a high-rank probe calculated from parameter equality, but stop it early
-if gain per parameter is dominated. Analyse singular values of the resulting
-delta and activation sensitivity per layer.
+For one task, sweep practical rank and target-module allocations under the
+12 GB envelope. Define candidate expert-capacity units by total adapter
+parameters across the model, active FLOPs, and latency—not hidden width. Measure
+effective rank, activation sensitivity, and marginal validation gain.
 
-**Gate 0R:** retain the smallest configuration within 1% absolute of the best
-validation score unless a larger rank improves a strategically unique capability
-by ≥3%. Record high-rank rejection and reopen condition.
+Compare at least one two-unit stack against a single wider LoRA with equal stored
+parameters and against continued training with equal tokens. This calibrates
+whether a repeatable “expert-sized” unit exists before the term is used in
+decision claims.
+
+**Gate 0R:** retain the smallest initial unit within 1% absolute of the best
+validation score. Retain the X→X+1 formulation only if a second residual unit
+adds repeatable capability and is not dominated by the equal-budget wider or
+continued-training control. Record the unit definition and reopening condition.
 
 ### 0.3 Harness calibration
 
@@ -100,41 +106,63 @@ If quality wins but systems lose, optimise kernels/caching once and repeat. If
 the oracle gap is small, better routing is low ROI; if the oracle itself loses,
 expert composition or data quality is the problem.
 
-## B — Hierarchical specialisation
+## B — Progressive residual expert stacks
 
-### B1. Select one parent
+### B1. Select a growth path
 
-Cluster the best broad expert’s held-out failures using representations and
-human-readable error taxonomy. Require stable clusters across seeds and enough
-volume to justify a child.
+For each broad Phase A expert, cluster held-out residual failures using
+representations plus a human-readable error taxonomy. Select a parent path only
+when clusters are stable across seeds, valuable, and large enough to support an
+additional capacity unit. Record the current path as \(S_k\), including its
+ordered ancestor digests.
 
-### B2. Train children
+### B2. Train X→X+1 growth
 
-Compare children trained from:
+Freeze the base, all ancestors, and existing routers. Train one child residual
+\(\Delta_{k+1}\) on the selected residual knowledge so the new path is
+\(S_{k+1}=S_k+\Delta_{k+1}\). Match the new adapter to the calibrated
+expert-capacity budget across target modules; rank may vary by layer.
 
-- base + independent child LoRA;
-- frozen parent + child residual LoRA;
-- parent checkpoint initialisation then independent fine-tune.
+Compare against:
 
-### B3. Compare topology
+1. no growth at \(S_k\);
+2. continued parent training for equal tokens;
+3. one wider parent LoRA at equal stored parameters;
+4. a flat sibling expert trained from the base;
+5. parent checkpoint initialisation followed by replacement fine-tuning;
+6. a dense multi-task adapter at matched active cost.
 
-Flat leaves, parent→children, retrieval→shortlist→router, and shared-parent+
-child routes. Measure error propagation: parent miss, child miss, and correct
-fallback. Add explicit head and base choices but no loops.
+### B3. Route and stop
+
+Train a router at the parent boundary with explicit choices to stop/head,
+descend to each child, or fall back. Compare flat leaves, progressive
+parent→child paths, and retrieval→shortlist→router. Measure ancestor preservation,
+parent and child routing errors, path-depth calibration, and shared-prefix cache
+reuse.
+
+### B4. Repeatable growth rule
+
+If the first child passes, repeat once on either the same branch or a sibling to
+test whether the unit and admission rule transfer. Do not call the mechanism
+progressive growth based on a single successful child.
 
 ### Gate B → C
 
-Proceed when hierarchy:
+Proceed when all are true:
 
-- improves the selected hard subdomains ≥3 points over the best flat matched
-  baseline;
-- retains ≥98% of unaffected-domain performance;
-- reduces router search or active adapter cost enough that quality per p95
-  millisecond improves ≥10%;
-- remains calibrated under mixed and unknown inputs;
-- demonstrates an interpretable, repeatable growth rule.
+- \(S_{k+1}\) improves its selected hard knowledge region ≥3 points over
+  \(S_k\) and beats or Pareto-dominates the equal-budget wider, continued, and
+  flat-sibling controls;
+- ancestors retain ≥98% of unaffected-domain performance;
+- the boundary router sends covered/easy inputs to the earlier exit and remains
+  calibrated on mixed and unknown inputs;
+- marginal capability per active parameter and p95 millisecond improves ≥10%;
+- two growth events demonstrate a repeatable capacity-unit and lineage rule;
+- every child is reproducible only from its pinned ancestor chain.
 
-Otherwise retain flat routing and continue ecosystem work without hierarchy.
+Otherwise keep the useful flat router and any individually useful child
+artifact, revise the unit definition, or stop progressive depth without blocking
+ecosystem work.
 
 ## C — Exit and bounded latent loops
 
