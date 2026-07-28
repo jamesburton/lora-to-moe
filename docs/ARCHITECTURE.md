@@ -36,12 +36,18 @@ This is conceptual notation: implementations apply each LoRA delta at its
 declared target modules throughout the transformer. It does not imply appending
 a transformer layer or merging weights during training.
 
-A router first selects a broad expert. At the next boundary it may:
+A router first selects a broad expert. Every subsequent boundary exposes the
+same three-way protocol:
 
-1. exit through the normal compatible output path;
-2. select a child residual and compute \(S_{k+1}\);
-3. select another declared branch;
-4. later, enter a separately bounded adaptive-computation primitive.
+1. **answer** — stop growing the capability path and use its compatible output
+   path;
+2. **extend** — apply the next residual unit on the same lineage and compute
+   \(S_{k+1}\);
+3. **branch** — select a sibling or child specialism whose manifest declares the
+   required lineage.
+
+A later `extend` target may be a separately bounded adaptive-computation
+primitive, but it never introduces an unbounded cycle.
 
 Growth is evidence-triggered. Cluster the residual failures of \(S_k\); add
 \(\Delta_{k+1}\) only when a stable, valuable knowledge region cannot be served
@@ -118,7 +124,10 @@ Compare:
 - retrieval shortlist followed by a learned router;
 - child-only delta trained directly from the base.
 
-Each boundary exposes a calibrated head/stop route. This makes depth conditional:
+Each boundary exposes calibrated `answer`, `extend`, and `branch` routes. This
+separates three questions that a flat expert selector conflates: whether the
+current path already knows enough, whether it needs more depth in the same
+capability, and whether a different specialism is required. This makes depth conditional:
 easy or already-covered inputs stop at \(S_k\), while only the relevant
 knowledge region pays for \(S_{k+1}\). The hierarchy must win on marginal
 capability per active byte, FLOP, and millisecond, not merely parameter count. A
